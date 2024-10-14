@@ -7,10 +7,10 @@ public class Specs
 {
     [Theory]
     [MemberData(nameof(WinningCombos))]
-    public void Winning_rules(RpslsPick player1Pick, RpslsPick player2Pick)
+    public void Winning_rules(HandGesture player1Gesture, HandGesture player2Gesture)
     {
-        _player1.PreparePick(player1Pick);
-        _player2.PreparePick(player2Pick);
+        _player1.PrepareGesture(player1Gesture);
+        _player2.PrepareGesture(player2Gesture);
         _game.Play();
 
         _game.Winner.Should().NotBeNull();
@@ -19,10 +19,10 @@ public class Specs
 
     [Theory]
     [MemberData(nameof(NoWinnerCombos))]
-    public void No_winner(RpslsPick player1Pick, RpslsPick player2Pick)
+    public void No_winner(HandGesture player1Gesture, HandGesture player2Gesture)
     {
-        _player1.PreparePick(player1Pick);
-        _player2.PreparePick(player2Pick);
+        _player1.PrepareGesture(player1Gesture);
+        _player2.PrepareGesture(player2Gesture);
         _game.Play();
 
         _game.Winner.Should().BeNull();
@@ -44,13 +44,13 @@ public class Specs
 
     public static IEnumerable<object[]> WinningCombos()
     {
-        foreach (var (player1Pick, player2Pick) in Game.Rules) yield return [player1Pick, player2Pick];
+        foreach (var (player1Gesture, player2Gesture) in Game.Rules) yield return [player1Gesture, player2Gesture];
     }
 
     public static IEnumerable<object[]> NoWinnerCombos()
     {
-        yield return [RpslsPick.Rock, RpslsPick.Rock];
-        yield return [RpslsPick.Scissors, RpslsPick.Scissors];
+        yield return [HandGesture.Rock, HandGesture.Rock];
+        yield return [HandGesture.Scissors, HandGesture.Scissors];
     }
 
     #endregion
@@ -58,44 +58,44 @@ public class Specs
 
 public class Game(Player player1, Player player2)
 {
-    public static readonly List<(RpslsPick, RpslsPick)> Rules =
+    public static readonly IEnumerable<(HandGesture, HandGesture)> Rules =
     [
-        (RpslsPick.Scissors, RpslsPick.Paper), // Scissors cuts Paper
-        (RpslsPick.Paper, RpslsPick.Rock), // Paper covers Rock
-        (RpslsPick.Rock, RpslsPick.Lizard), // Rock crushes Lizard
-        (RpslsPick.Lizard, RpslsPick.Spock), // Lizard poisons Spock
-        (RpslsPick.Spock, RpslsPick.Scissors), // Spock smashes Scissors
-        (RpslsPick.Scissors, RpslsPick.Lizard), // Scissors decapitates Lizard
-        (RpslsPick.Lizard, RpslsPick.Paper), // Lizard eats Paper
-        (RpslsPick.Paper, RpslsPick.Spock), // Paper disproves Spock
-        (RpslsPick.Spock, RpslsPick.Rock), // Spock vaporizes Rock
-        (RpslsPick.Rock, RpslsPick.Scissors) // Rock crushes Scissors
+        (HandGesture.Scissors, HandGesture.Paper), // Scissors cuts Paper
+        (HandGesture.Paper, HandGesture.Rock), // Paper covers Rock
+        (HandGesture.Rock, HandGesture.Lizard), // Rock crushes Lizard
+        (HandGesture.Lizard, HandGesture.Spock), // Lizard poisons Spock
+        (HandGesture.Spock, HandGesture.Scissors), // Spock smashes Scissors
+        (HandGesture.Scissors, HandGesture.Lizard), // Scissors decapitates Lizard
+        (HandGesture.Lizard, HandGesture.Paper), // Lizard eats Paper
+        (HandGesture.Paper, HandGesture.Spock), // Paper disproves Spock
+        (HandGesture.Spock, HandGesture.Rock), // Spock vaporizes Rock
+        (HandGesture.Rock, HandGesture.Scissors) // Rock crushes Scissors
     ];
 
     public Player Winner { get; private set; }
 
     public void Play()
     {
-        if (Rules.Any(rule => rule.Item1 == player1.Pick && rule.Item2 == player2.Pick))
+        if (Rules.Any(rule => rule.Item1 == player1.ChosenGesture && rule.Item2 == player2.ChosenGesture))
             Winner = player1;
-        if (Rules.Any(rule => rule.Item1 == player2.Pick && rule.Item2 == player1.Pick))
+        if (Rules.Any(rule => rule.Item1 == player2.ChosenGesture && rule.Item2 == player1.ChosenGesture))
             Winner = player2;
     }
 }
 
 public class Player(string name)
 {
-    public RpslsPick Pick { get; private set; }
+    public HandGesture ChosenGesture { get; private set; }
 
     public string Name => name;
 
-    public void PreparePick(RpslsPick pick)
+    public void PrepareGesture(HandGesture gesture)
     {
-        Pick = pick;
+        ChosenGesture = gesture;
     }
 }
 
-public enum RpslsPick
+public enum HandGesture
 {
     Rock,
     Paper,
